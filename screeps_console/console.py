@@ -41,7 +41,19 @@ class ScreepsConsole(screepsapi.Socket):
                 print("Unexpected error:", sys.exc_info())
                 return
 
-        data = json.loads(message)
+        try:
+            data = json.loads(message)
+        except json.JSONDecodeError as e:
+            print("Error parsing response: %s" % str(e))
+            # Print the first part of the message to help debug
+            preview = message[:100] if isinstance(message, str) else str(message)[:100]
+            print("Received: %s..." % preview)
+            print("This usually indicates an authentication error or API endpoint issue.")
+            print("Please check your credentials and server configuration.")
+            return
+        except Exception as e:
+            print("Unexpected error parsing message: %s" % str(e))
+            return
 
         if 'shard' in data[1]:
             shard = data[1]['shard']

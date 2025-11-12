@@ -96,7 +96,14 @@ def getToken(username, password, host, secure):
                }
     r = requests.post(apiurl, data=authtype, auth=(username, password))
     r.raise_for_status()
-    apiret = json.loads(r.text, object_pairs_hook=OrderedDict)
+    try:
+        apiret = json.loads(r.text, object_pairs_hook=OrderedDict)
+    except json.JSONDecodeError as e:
+        print("Error: Server returned invalid JSON response")
+        print("URL: %s" % apiurl)
+        print("Status Code: %s" % r.status_code)
+        print("Response preview: %s..." % r.text[:200])
+        raise Exception("Failed to parse authentication response from server")
     return apiret['token']
 
 
